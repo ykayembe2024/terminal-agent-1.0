@@ -28,7 +28,7 @@ const logger = requireFile('../core/logger');
 /**
  * Démarre le lecteur de port série avec reconnexion automatique
  * @function startReader
- * @param {string} portPath - Chemin du port série (ex: 'COM11')
+ * @param {string|null} portPath - Chemin du port série (ex: 'COM11') ou null en mode auto-détection
  * @param {Function} onTerminal - Callback appelé quand le terminal est identifié
  * @param {Function} onWeight - Callback appelé pour chaque poids détecté
  * @param {Function} onConnectionStatus - Callback appelé quand l'état de connexion change
@@ -124,6 +124,13 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
   let reconnectStartedAt = null;
 
   /**
+   * Port réellement utilisé par la connexion active.
+   * Peut changer en mode auto-détection.
+   * @type {string|null}
+   */
+  let currentPortPath = null;
+
+  /**
    * Notifie le changement d'état de connexion série
    * @function notifyConnectionStatus
    * @param {boolean} connected - true si connecté, false si déconnecté
@@ -169,7 +176,13 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
 
     pollingInterval = setInterval(() => {
       if (port && port.isOpen) {
-        port.write('SI\r\n');
+        port.write('SI\r\n', (err) => {
+          if (!err) return;
+          logger.error(`Erreur écriture SI sur port série : ${err.message}`);
+          stopPolling();
+          notifyConnectionStatus(false);
+          scheduleReconnect();
+        });
       }
     }, config.SYSTEM.pollIntervalMs);
   }
@@ -179,6 +192,165 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
       clearInterval(pollingInterval);
       pollingInterval = null;
     }
+  }
+
+  /**
+   * Indique si l'auto-détection série est activée.
+   * @returns {boolean}
+   */
+  function isAutoDetectEnabled() {
+    return config.SERIAL.autoDetect === true;
+  }
+
+  /**
+   * Retourne la liste des ports série candidats à tester.
+   * En mode fixe: retourne uniquement le port configuré.
+   * En mode auto: retourne tous les ports, en priorisant le port configuré si présent.
+   * @returns {Promise<string[]>}
+   */
+  async function getCandidatePorts() {
+    if (!isAutoDetectEnabled()) {
+      return portPath ? [portPath] : [];
+    }
+
+    const ports = await SerialPort.list();
+    const paths = ports.map((item) => item.path).filter(Boolean);
+
+    if (!portPath) {
+      return paths;
+    }
+
+    const dedup = [portPath, ...paths].filter((value, index, arr) => arr.indexOf(value) === index);
+    return dedup;
+  }
+
+  /**
+   * Teste un port en envoyant une commande SICS I4 pour confirmer qu'il s'agit d'une balance.
+   * @param {string} candidatePath - Port à tester
+   * @returns {Promise<{ ok: boolean, terminalCode: string|null }>} Résultat du test
+   */
+  async function probeSicsPort(candidatePath) {
+    const timeoutMs = Number(config.SERIAL.detectProbeTimeoutMs) || 2500;
+
+    return new Promise((resolve) => {
+      let localPort = null;
+      let localParser = null;
+      let done = false;
+      let probeTimer = null;
+      let i4Interval = null;
+
+      const finish = (ok, terminalCode = null) => {
+        if (done) return;
+        done = true;
+
+        if (probeTimer) clearTimeout(probeTimer);
+        if (i4Interval) clearInterval(i4Interval);
+
+        try {
+          if (localParser) localParser.removeAllListeners();
+          if (localPort) {
+            localPort.removeAllListeners();
+            if (localPort.isOpen) {
+              localPort.close(() => resolve({ ok, terminalCode }));
+              return;
+            }
+          }
+        } catch {
+          // Erreur de fermeture ignorée volontairement pendant le probe
+        }
+
+        resolve({ ok, terminalCode });
+      };
+
+      try {
+        localPort = new SerialPort({
+          path: candidatePath,
+          baudRate: config.SERIAL.baudRate,
+          dataBits: config.SERIAL.dataBits,
+          stopBits: config.SERIAL.stopBits,
+          parity: config.SERIAL.parity,
+          autoOpen: false
+        });
+
+        localPort.open((openErr) => {
+          if (openErr) {
+            finish(false, null);
+            return;
+          }
+
+          localParser = localPort.pipe(new ReadlineParser({ delimiter: '\r\n' }));
+
+          localParser.on('data', (line) => {
+            const cleaned = String(line || '')
+              .replace(/\x02/g, '')
+              .replace(/\x03/g, '')
+              .trim();
+
+            if (!cleaned) return;
+            if (!cleaned.startsWith('I4') || !cleaned.includes('"')) return;
+
+            const match = cleaned.match(/"(.+?)"/);
+            if (!match) return;
+
+            finish(true, match[1]);
+          });
+
+          localPort.on('error', () => finish(false, null));
+          localPort.on('close', () => finish(false, null));
+
+          localPort.write('I4\r\n', (writeErr) => {
+            if (writeErr) {
+              finish(false, null);
+            }
+          });
+
+          i4Interval = setInterval(() => {
+            if (localPort && localPort.isOpen) {
+              localPort.write('I4\r\n', (writeErr) => {
+                if (writeErr) {
+                  finish(false, null);
+                }
+              });
+            }
+          }, 600);
+
+          probeTimer = setTimeout(() => finish(false, null), timeoutMs);
+        });
+      } catch {
+        finish(false, null);
+      }
+    });
+  }
+
+  /**
+   * Résout le port à utiliser pour la connexion active.
+   * En mode auto-détection, parcourt tous les ports et sélectionne le premier
+   * qui répond à la commande SICS I4.
+   * @returns {Promise<string>} Port sélectionné
+   */
+  async function resolvePortPath() {
+    if (!isAutoDetectEnabled()) {
+      if (!portPath) {
+        throw new Error('Aucun port série configuré');
+      }
+      return portPath;
+    }
+
+    const candidates = await getCandidatePorts();
+
+    if (!candidates.length) {
+      throw new Error('Aucun port série détecté sur la machine');
+    }
+
+    for (const candidate of candidates) {
+      const result = await probeSicsPort(candidate);
+      if (result.ok) {
+        logger.info(`Auto-détection série: balance trouvée sur ${candidate}${result.terminalCode ? ` (terminal=${result.terminalCode})` : ''}`);
+        return candidate;
+      }
+    }
+
+    throw new Error('Aucun port balance SICS valide détecté');
   }
 
   /**
@@ -258,21 +430,21 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
 
     reconnectTimeout = setTimeout(() => {
       reconnectTimeout = null;
-      try {
-        connect();
-      } catch (err) {
+      connect().catch((err) => {
         logger.error(`Erreur inattendue lors de la reconnexion : ${err.message}`);
         scheduleReconnect();
-      }
+      });
     }, delay);
   }
 
-  function connect() {
+  async function connect() {
     cleanup();
 
     try {
+      currentPortPath = await resolvePortPath();
+
       port = new SerialPort({
-        path: portPath,
+        path: currentPortPath,
         baudRate: config.SERIAL.baudRate,
         dataBits: config.SERIAL.dataBits,
         stopBits: config.SERIAL.stopBits,
@@ -284,7 +456,7 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
 
       // Gestion des événements
       port.on('open', () => {
-        logger.info(`Port série ouvert sur ${portPath}`);
+        logger.info(`Port série ouvert sur ${currentPortPath}`);
         reconnectAttempts = 0; // Reset des tentatives
         maxRetryModeAnnounced = false;
         postMaxRetryCount = 0;
@@ -294,7 +466,12 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
         startPolling();
 
         // Demande identité du terminal
-        port.write('I4\r\n');
+        port.write('I4\r\n', (err) => {
+          if (!err) return;
+          logger.error(`Erreur écriture I4 sur port série : ${err.message}`);
+          notifyConnectionStatus(false);
+          scheduleReconnect();
+        });
       });
 
       port.on('error', (err) => {
@@ -304,7 +481,7 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
       });
 
       port.on('close', () => {
-        logger.warn('Port série fermé');
+        logger.warn(`Port série fermé (${currentPortPath || 'inconnu'})`);
         stopPolling();
         notifyConnectionStatus(false);
         scheduleReconnect();
@@ -370,7 +547,11 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
   }
 
   // Démarrage initial de la connexion
-  connect();
+  connect().catch((err) => {
+    logger.error(`Erreur connexion série initiale : ${err.message}`);
+    notifyConnectionStatus(false);
+    scheduleReconnect();
+  });
 
   /**
    * Fonction d'arrêt propre du lecteur série

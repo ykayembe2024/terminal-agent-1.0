@@ -14,6 +14,8 @@
 /**
  * @typedef {Object} SerialConfig
  * @property {string} path - Chemin du port série (ex: 'COM11' sur Windows, '/dev/ttyS10' sur Linux)
+ * @property {boolean} autoDetect - Active la détection automatique du port balance (SICS)
+ * @property {number} detectProbeTimeoutMs - Timeout de test par port lors de l'auto-détection
  * @property {number} baudRate - Vitesse de transmission en bauds (9600)
  * @property {number} dataBits - Nombre de bits de données (8)
  * @property {number} stopBits - Nombre de bits d'arrêt (1)
@@ -53,6 +55,8 @@ module.exports = {
 
   SERIAL: {
     path: 'COM11',
+    autoDetect: true,
+    detectProbeTimeoutMs: 2500,
     baudRate: 9600,
     dataBits: 8,
     stopBits: 1,

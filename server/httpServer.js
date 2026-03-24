@@ -25,7 +25,7 @@ const config = requireFile('../config');
  * Démarre le serveur HTTP local
  * Crée un serveur Express sécurisé pour exposer l'API locale
  * @function startServer
- * @returns {void}
+ * @returns {{ stop: Function }} Interface d'arrêt propre
  */
 function startServer() {
 
@@ -33,6 +33,25 @@ function startServer() {
 
   const PORT = config.LOCAL_SERVER?.port || 1789;
   const HOST = '127.0.0.1';
+  const retryDelayMs = 60000;
+
+  /**
+   * Instance serveur HTTP active
+   * @type {import('http').Server|null}
+   */
+  let server = null;
+
+  /**
+   * Timer de relance du serveur local
+   * @type {NodeJS.Timeout|null}
+   */
+  let restartTimer = null;
+
+  /**
+   * Indique qu'un arrêt volontaire est en cours
+   * @type {boolean}
+   */
+  let isStopping = false;
 
   app.use(express.json());
 
@@ -137,22 +156,84 @@ function startServer() {
    * START SERVER
    * ============================================================
    */
-  const server = app.listen(PORT, HOST, () => {
+  /**
+   * Planifie un redémarrage du serveur local
+   * @returns {void}
+   */
+  function scheduleRestart() {
+    if (isStopping || restartTimer) return;
 
-    logger.info(`Serveur local démarré : http://${HOST}:${PORT}`);
+    restartTimer = setTimeout(() => {
+      restartTimer = null;
+      startListening();
+    }, retryDelayMs);
 
-  });
+    logger.warn(`Relance serveur local planifiée dans ${Math.round(retryDelayMs / 1000)}s`);
+  }
 
   /**
-   * ============================================================
-   * PROTECTION CRASH
-   * ============================================================
+   * Démarre l'écoute HTTP locale et gère les erreurs de bind.
+   * @returns {void}
    */
-  server.on("error", (err) => {
+  function startListening() {
+    if (isStopping || server) return;
 
-    logger.error(`Erreur serveur local : ${err.message}`);
+    server = app.listen(PORT, HOST, () => {
+      logger.info(`Serveur local démarré : http://${HOST}:${PORT}`);
+    });
 
-  });
+    server.on('close', () => {
+      server = null;
+      if (!isStopping) {
+        logger.warn('Serveur local arrêté de manière inattendue');
+        scheduleRestart();
+      }
+    });
+
+    server.on('error', (err) => {
+      logger.error(`Erreur serveur local : ${err.message}`);
+
+      const faultyServer = server;
+      server = null;
+
+      if (faultyServer) {
+        try {
+          faultyServer.close();
+        } catch {
+          // ignore close failure on listen errors
+        }
+      }
+
+      if (err.code === 'EADDRINUSE' || err.code === 'EACCES') {
+        scheduleRestart();
+      }
+    });
+  }
+
+  startListening();
+
+  return {
+    /**
+     * Arrête proprement le serveur local et annule toute relance planifiée.
+     * @returns {void}
+     */
+    stop() {
+      isStopping = true;
+
+      if (restartTimer) {
+        clearTimeout(restartTimer);
+        restartTimer = null;
+      }
+
+      if (server) {
+        try {
+          server.close();
+        } catch (err) {
+          logger.error(`Erreur fermeture serveur local : ${err.message}`);
+        }
+      }
+    }
+  };
 
 }
 
