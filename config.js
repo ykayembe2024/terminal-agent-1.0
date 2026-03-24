@@ -54,7 +54,7 @@
 module.exports = {
 
   SERIAL: {
-    path: 'COM11',
+    path: 'COM73',
     autoDetect: true,
     detectProbeTimeoutMs: 2500,
     baudRate: 9600,

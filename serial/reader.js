@@ -287,6 +287,12 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
               .trim();
 
             if (!cleaned) return;
+            // Exclure les protocoles GPS/NMEA (trames commençant par '$')
+            if (cleaned.startsWith('$')) {
+              logger.warn(`Port ${candidatePath} ignoré : protocole GPS/NMEA détecté`);
+              finish(false, null);
+              return;
+            }
             if (!cleaned.startsWith('I4') || !cleaned.includes('"')) return;
 
             const match = cleaned.match(/"(.+?)"/);
@@ -336,11 +342,14 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
       return portPath;
     }
 
+    const allPorts = await SerialPort.list();
     const candidates = await getCandidatePorts();
 
     if (!candidates.length) {
       throw new Error('Aucun port série détecté sur la machine');
     }
+
+    logger.info(`Auto-détection série: ${candidates.length} port(s) à tester: ${candidates.join(', ')}`);
 
     for (const candidate of candidates) {
       const result = await probeSicsPort(candidate);
@@ -350,7 +359,12 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
       }
     }
 
-    throw new Error('Aucun port balance SICS valide détecté');
+    // Aucun port SICS trouvé — lister les ports disponibles pour diagnostic
+    const portSummary = allPorts
+      .map((p) => `${p.path}${p.friendlyName ? ` (${p.friendlyName})` : ''}${p.manufacturer ? ` [${p.manufacturer}]` : ''}`)
+      .join(', ') || 'aucun';
+
+    throw new Error(`Aucun port balance SICS valide détecté. Ports disponibles: ${portSummary}`);
   }
 
   /**
