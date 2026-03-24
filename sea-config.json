@@ -1,0 +1,4 @@
+﻿{
+  "main": "app.js",
+  "output": "balance-agent.exe"
+}

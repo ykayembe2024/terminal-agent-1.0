@@ -1,0 +1,14 @@
+{
+  "name": "balance-agent",
+  "version": "1.0.0",
+  "description": "Industrial scale terminal agent for weight acquisition and API synchronization",
+  "main": "app.js",
+  "author": "Yves KAYEMBE",
+  "license": "Proprietary",
+  "dependencies": {
+    "@serialport/parser-readline": "^12.0.0",
+    "axios": "^1.6.0",
+    "express": "^5.2.1",
+    "serialport": "^12.0.0"
+  }
+}
