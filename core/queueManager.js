@@ -9,6 +9,9 @@
 
 const fs = require('fs');
 const path = require('path');
+const {createRequire} = require("module");
+const requireFile = createRequire(__filename);
+const logger = requireFile('./logger');
 
 /**
  * Gestionnaire de file d'attente persistante sur disque
@@ -47,7 +50,8 @@ class QueueManager {
     try {
       const content = fs.readFileSync(this.path, 'utf8');
       return content ? JSON.parse(content) : [];
-    } catch {
+    } catch (err) {
+      logger.error(`Erreur lecture queue (${this.path}) : ${err.message}`);
       return [];
     }
   }
@@ -125,7 +129,8 @@ class QueueManager {
   size() {
     try {
       return this.read().length;
-    } catch {
+    } catch (err) {
+      logger.error(`Erreur calcul taille queue (${this.path}) : ${err.message}`);
       return 0;
     }
   }
@@ -138,13 +143,6 @@ class QueueManager {
     return this.size() === 0;
   }
 
-  /**
-   * Remplace complètement la queue
-   * (utilisé après un flush partiel)
-   */
-  replaceAll(items) {
-    fs.writeFileSync(this.path, JSON.stringify(items, null, 2));
-  }
 }
 
 module.exports = QueueManager;

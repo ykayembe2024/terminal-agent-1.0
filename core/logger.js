@@ -46,6 +46,20 @@ const LOG_LEVELS = { ERROR: 0, WARN: 1, INFO: 2 };
 const FILE_LOG_LEVEL = LOG_LEVELS.WARN;
 
 /**
+ * État du dernier message pour éviter la duplication de logs.
+ * On garde une seule ligne initiale, puis une ligne résumé quand
+ * le message change (ou à l'arrêt du process).
+ * @type {{ key: string, level: string, levelNum: number, message: string, firstAt: number, lastAt: number, count: number } | null}
+ */
+let lastLogState = null;
+
+/**
+ * Indique si les hooks de flush final ont déjà été enregistrés.
+ * @type {boolean}
+ */
+let flushHooksRegistered = false;
+
+/**
  * Nettoie les anciens fichiers de logs (garde 7 jours maximum)
  * Supprime automatiquement les fichiers de log datant de plus de 7 jours
  * @function cleanupOldLogs
@@ -147,6 +161,102 @@ function safeString(value) {
 }
 
 /**
+ * Écrit une ligne en console et en fichier (selon niveau)
+ * @function writeLine
+ * @param {string} level - Niveau du log ('INFO', 'WARN', 'ERROR')
+ * @param {number} levelNum - Valeur numérique du niveau
+ * @param {string} message - Message déjà nettoyé
+ * @param {number} [timestampMs=Date.now()] - Timestamp à utiliser
+ * @returns {void}
+ */
+function writeLine(level, levelNum, message, timestampMs = Date.now()) {
+  const printable = safeString(message);
+
+  if (level === 'ERROR') {
+    console.error(`❌ ${printable}`);
+  } else if (level === 'WARN') {
+    console.warn(`⚠️  ${printable}`);
+  } else {
+    console.log(`ℹ️  ${printable}`);
+  }
+
+  write(level, levelNum, printable);
+}
+
+/**
+ * Flush le résumé du message en cours s'il a été répété.
+ * @function flushLastLogSummary
+ * @returns {void}
+ */
+function flushLastLogSummary() {
+  if (!lastLogState || lastLogState.count <= 1) return;
+
+  const firstIso = new Date(lastLogState.firstAt).toISOString();
+  const lastIso = new Date(lastLogState.lastAt).toISOString();
+  const summary = `Message répété ${lastLogState.count - 1} fois (début=${firstIso}, dernière occurrence=${lastIso}) : ${lastLogState.message}`;
+
+  writeLine(lastLogState.level, lastLogState.levelNum, summary, lastLogState.lastAt);
+}
+
+/**
+ * Traite un log avec déduplication intelligente.
+ * @function logWithDedup
+ * @param {string} level - Niveau ('INFO', 'WARN', 'ERROR')
+ * @param {number} levelNum - Niveau numérique
+ * @param {*} rawMessage - Message original
+ * @returns {void}
+ */
+function logWithDedup(level, levelNum, rawMessage) {
+  try {
+    const message = safeString(rawMessage);
+    const key = `${level}|${message}`;
+    const now = Date.now();
+
+    if (lastLogState && lastLogState.key === key) {
+      lastLogState.count += 1;
+      lastLogState.lastAt = now;
+      return;
+    }
+
+    flushLastLogSummary();
+
+    writeLine(level, levelNum, message, now);
+    lastLogState = {
+      key,
+      level,
+      levelNum,
+      message,
+      firstAt: now,
+      lastAt: now,
+      count: 1
+    };
+  } catch (err) {
+    console.error('LOGGER FAILURE:', err.message);
+  }
+}
+
+/**
+ * Enregistre les hooks process pour flush final des répétitions.
+ * @function registerFlushHooks
+ * @returns {void}
+ */
+function registerFlushHooks() {
+  if (flushHooksRegistered) return;
+  flushHooksRegistered = true;
+
+  const safeFlush = () => {
+    try {
+      flushLastLogSummary();
+    } catch (err) {
+      console.error('LOGGER FAILURE:', err.message);
+    }
+  };
+
+  process.once('beforeExit', safeFlush);
+  process.once('exit', safeFlush);
+}
+
+/**
  * Écrit un message dans le fichier de log avec rotation automatique
  * N'écrit que si le niveau de log est >= FILE_LOG_LEVEL
  * @function write
@@ -171,15 +281,15 @@ function write(level, levelNum, message, forceSync = false) {
 
 module.exports = {
   info(msg) {
-    console.log(`ℹ️  ${safeString(msg)}`);
-    write('INFO', LOG_LEVELS.INFO, msg);
+    registerFlushHooks();
+    logWithDedup('INFO', LOG_LEVELS.INFO, msg);
   },
   warn(msg) {
-    console.warn(`⚠️  ${safeString(msg)}`);
-    write('WARN', LOG_LEVELS.WARN, msg);
+    registerFlushHooks();
+    logWithDedup('WARN', LOG_LEVELS.WARN, msg);
   },
   error(msg) {
-    console.error(`❌ ${safeString(msg)}`);
-    write('ERROR', LOG_LEVELS.ERROR, msg);
+    registerFlushHooks();
+    logWithDedup('ERROR', LOG_LEVELS.ERROR, msg);
   }
 };

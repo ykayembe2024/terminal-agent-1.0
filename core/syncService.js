@@ -59,17 +59,30 @@ class SyncService {
     this.serialConnected = false;
 
     /**
+     * Dernier état série loggé pour éviter les logs dupliqués
+     * @type {boolean|null}
+     */
+    this.lastLoggedSerialState = null;
+
+    /**
+     * Timer du heartbeat (null quand arrêté)
+     * @type {NodeJS.Timeout|null}
+     */
+    this.heartbeatTimer = null;
+
+    /**
+     * Intervalle heartbeat en millisecondes
+     * @type {number}
+     */
+    this.heartbeatIntervalMs = 5000;
+
+    /**
      * Agent HTTPS pour ignorer la vérification SSL
      * @type {https.Agent}
      */
     this.httpsAgent = new https.Agent({
       rejectUnauthorized: false
     });
-
-    // 🔁 Heartbeat toutes les 5 secondes
-    setInterval(() => {
-      this.sendHeartbeat();
-    }, 5000);
   }
 
   /**
@@ -79,6 +92,11 @@ class SyncService {
   setTerminal(code) {
     this.terminalCode = code;
     logger.info(`Terminal configuré : ${code}`);
+
+    // Si la balance est déjà connectée, on peut activer immédiatement le heartbeat.
+    if (this.serialConnected) {
+      this.startHeartbeat();
+    }
   }
 
   /**
@@ -86,8 +104,51 @@ class SyncService {
    * @param {boolean} connected - true si connecté, false si déconnecté
    */
   setSerialConnectionStatus(connected) {
+    const previous = this.serialConnected;
     this.serialConnected = connected;
-    logger.info(`État connexion série : ${connected ? 'CONNECTÉ' : 'DÉCONNECTÉ'}`);
+
+    if (this.lastLoggedSerialState !== connected) {
+      logger.info(`État connexion série : ${connected ? 'CONNECTÉ' : 'DÉCONNECTÉ'}`);
+      this.lastLoggedSerialState = connected;
+    }
+
+    // Le heartbeat doit s'arrêter tant que la balance n'est pas atteinte.
+    if (connected) {
+      this.startHeartbeat();
+    } else {
+      this.stopHeartbeat();
+    }
+
+    if (previous !== connected && !connected) {
+      logger.warn('Heartbeat suspendu : balance indisponible');
+    }
+  }
+
+  /**
+   * Démarre le heartbeat périodique si les prérequis sont réunis.
+   * Conditions: terminal configuré + connexion série active.
+   * @returns {void}
+   */
+  startHeartbeat() {
+    if (this.heartbeatTimer) return;
+    if (!this.serialConnected || !this.terminalCode) return;
+
+    this.heartbeatTimer = setInterval(() => {
+      this.sendHeartbeat();
+    }, this.heartbeatIntervalMs);
+
+    // Envoi immédiat pour signaler rapidement l'état "connecté".
+    this.sendHeartbeat();
+  }
+
+  /**
+   * Arrête le heartbeat périodique.
+   * @returns {void}
+   */
+  stopHeartbeat() {
+    if (!this.heartbeatTimer) return;
+    clearInterval(this.heartbeatTimer);
+    this.heartbeatTimer = null;
   }
 
   /**
@@ -125,11 +186,17 @@ class SyncService {
         httpsAgent: this.httpsAgent
       });
 
-      this.flushQueue();
+      this.flushQueue().catch((err) => {
+        logger.error(`Erreur flush queue asynchrone : ${err.message}`);
+      });
 
     } catch (err) {
-      this.queue.push(payload);
-      logger.warn(`Poids mis en queue (${this.queue.size()} éléments)`);
+      try {
+        this.queue.push(payload);
+        logger.warn(`Poids mis en queue (${this.queue.size()} éléments)`);
+      } catch (queueErr) {
+        logger.error(`Échec stockage queue : ${queueErr.message}`);
+      }
     }
   }
 
@@ -141,8 +208,8 @@ class SyncService {
    */
   async sendHeartbeat() {
 
-    if (!this.terminalCode) {
-      logger.warn("Heartbeat ignoré : terminalCode non défini");
+    // Heartbeat désactivé si terminal non connu ou balance indisponible.
+    if (!this.terminalCode || !this.serialConnected) {
       return;
     }
 
@@ -163,7 +230,10 @@ class SyncService {
         timeout: 5000
       });
 
-      logger.info(`Heartbeat OK (${response.status})`);
+      // Log discret uniquement si statut inattendu.
+      if (response.status < 200 || response.status >= 300) {
+        logger.warn(`Heartbeat statut inattendu (${response.status})`);
+      }
 
     } catch (err) {
 
@@ -189,35 +259,39 @@ class SyncService {
     if (this.isFlushing) return;
     this.isFlushing = true;
 
-    const items = this.queue.getAll();
-    if (items.length === 0) {
-      this.isFlushing = false;
-      return;
-    }
-
-    logger.info(`Flush queue: ${items.length} éléments à envoyer`);
-    const remaining = [];
-
-    for (const payload of items) {
-      try {
-        await axios.post(config.API.url, payload, {
-          headers: {
-            Authorization: `Bearer ${config.API.token}`,
-            'Content-Type': 'application/json'
-          },
-          httpsAgent: this.httpsAgent
-        });
-      } catch {
-        remaining.push(payload);
-        break; // Arrêt au premier échec
+    try {
+      const items = this.queue.getAll();
+      if (items.length === 0) {
+        return;
       }
-    }
 
-    this.queue.replaceAll(remaining);
-    if (remaining.length < items.length) {
-      logger.info(`Flush partiel: ${items.length - remaining.length} éléments envoyés`);
+      const remaining = [];
+
+      for (const payload of items) {
+        try {
+          await axios.post(config.API.url, payload, {
+            headers: {
+              Authorization: `Bearer ${config.API.token}`,
+              'Content-Type': 'application/json'
+            },
+            httpsAgent: this.httpsAgent
+          });
+        } catch (err) {
+          logger.warn(`Flush interrompu: échec envoi queue (${err.message})`);
+          remaining.push(payload);
+          break; // Arrêt au premier échec
+        }
+      }
+
+      this.queue.replaceAll(remaining);
+      if (remaining.length < items.length) {
+        logger.info(`Flush partiel: ${items.length - remaining.length} éléments envoyés`);
+      }
+    } catch (err) {
+      logger.error(`Erreur flush queue : ${err.message}`);
+    } finally {
+      this.isFlushing = false;
     }
-    this.isFlushing = false;
   }
 }
 

@@ -73,6 +73,13 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
   const maxReconnectAttempts = 10;
 
   /**
+   * Délai fixe utilisé après la 10e tentative (ms)
+   * Permet de continuer les retries sans arrêter l'agent.
+   * @constant {number}
+   */
+  const retryAfterMaxDelay = 60000; // 1 minute
+
+  /**
    * Délai de base pour le retry exponentiel (ms)
    * @constant {number}
    */
@@ -85,11 +92,36 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
   const maxReconnectDelay = 30000; // 30 secondes
 
   /**
+   * Indique si le mode "retry toutes les 1 minute" a déjà été annoncé
+   * pour éviter les logs répétitifs.
+   * @type {boolean}
+   */
+  let maxRetryModeAnnounced = false;
+
+  /**
+   * Compteur de retries effectués après l'entrée en mode 1 minute.
+   * @type {number}
+   */
+  let postMaxRetryCount = 0;
+
+  /**
+   * État de persistance d'erreur série pour éviter la duplication des logs.
+   * @type {{message: string, firstAt: number, lastAt: number, count: number}|null}
+   */
+  let serialErrorState = null;
+
+  /**
    * Flag interne pour éviter de traiter plusieurs fois
    * l'identification du terminal (commande I4).
    * @type {boolean}
    */
   let terminalIdentified = false;
+
+  /**
+   * Mémorise le début de la séquence de reconnexion en cours.
+   * @type {number|null}
+   */
+  let reconnectStartedAt = null;
 
   /**
    * Notifie le changement d'état de connexion série
@@ -98,8 +130,12 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
    * @returns {void}
    */
   function notifyConnectionStatus(connected) {
-    if (onConnectionStatus) {
+    if (!onConnectionStatus) return;
+
+    try {
       onConnectionStatus(connected);
+    } catch (err) {
+      logger.error(`Erreur callback état connexion série : ${err.message}`);
     }
   }
 
@@ -145,20 +181,89 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
     }
   }
 
-  function scheduleReconnect() {
-    if (reconnectAttempts >= maxReconnectAttempts) {
-      logger.error(`Échec de reconnexion après ${maxReconnectAttempts} tentatives`);
-      notifyConnectionStatus(false);
+  /**
+   * Log une erreur série persistante sans duplication inutile.
+   * Écrit une ligne au début, puis une ligne de persistance périodique.
+   * @param {Error} err - Erreur série capturée
+   * @returns {void}
+   */
+  function logSerialError(err) {
+    const now = Date.now();
+    const message = `Erreur port série : ${err.message}`;
+
+    if (!serialErrorState || serialErrorState.message !== message) {
+      serialErrorState = {
+        message,
+        firstAt: now,
+        lastAt: now,
+        count: 1
+      };
+      logger.error(`${message} (début=${new Date(now).toISOString()})`);
       return;
     }
 
-    const delay = Math.min(baseReconnectDelay * Math.pow(2, reconnectAttempts), maxReconnectDelay);
-    reconnectAttempts++;
+    serialErrorState.count += 1;
+    serialErrorState.lastAt = now;
 
-    logger.warn(`Tentative de reconnexion ${reconnectAttempts}/${maxReconnectAttempts} dans ${delay}ms`);
+    // Une ligne de persistance toutes les 10 occurrences suffit.
+    if (serialErrorState.count % 10 === 0) {
+      logger.warn(
+        `Problème série persistant: ${serialErrorState.count} occurrences (début=${new Date(serialErrorState.firstAt).toISOString()}, dernière=${new Date(serialErrorState.lastAt).toISOString()})`
+      );
+    }
+  }
+
+  /**
+   * Réinitialise et clôture l'état d'erreur série si un problème existait.
+   * @returns {void}
+   */
+  function clearSerialErrorState() {
+    if (!serialErrorState) return;
+
+    logger.info(
+      `Connexion série rétablie après ${serialErrorState.count} occurrence(s) d'erreur (début=${new Date(serialErrorState.firstAt).toISOString()}, dernière=${new Date(serialErrorState.lastAt).toISOString()})`
+    );
+
+    serialErrorState = null;
+  }
+
+  function scheduleReconnect() {
+    // Évite les timers de reconnexion multiples si 'error' et 'close'
+    // sont émis quasi en même temps lors d'un débranchement brutal.
+    if (reconnectTimeout) {
+      return;
+    }
+
+    let delay = 0;
+
+    if (!reconnectStartedAt) {
+      reconnectStartedAt = Date.now();
+      logger.warn(`Début des tentatives de reconnexion série (début=${new Date(reconnectStartedAt).toISOString()})`);
+    }
+
+    if (reconnectAttempts < maxReconnectAttempts) {
+      delay = Math.min(baseReconnectDelay * Math.pow(2, reconnectAttempts), maxReconnectDelay);
+      reconnectAttempts++;
+    } else {
+      delay = retryAfterMaxDelay;
+      postMaxRetryCount++;
+
+      if (!maxRetryModeAnnounced) {
+        maxRetryModeAnnounced = true;
+        logger.warn(`Reconnexion série non disponible après ${maxReconnectAttempts} tentatives : retries continus toutes les ${Math.round(retryAfterMaxDelay / 60000)} minute(s) (début=${new Date(reconnectStartedAt).toISOString()})`);
+      } else if (postMaxRetryCount % 10 === 0) {
+        logger.warn(`Toujours en attente de la balance (${postMaxRetryCount} retries en mode 1 minute, début=${new Date(reconnectStartedAt).toISOString()})`);
+      }
+    }
 
     reconnectTimeout = setTimeout(() => {
-      connect();
+      reconnectTimeout = null;
+      try {
+        connect();
+      } catch (err) {
+        logger.error(`Erreur inattendue lors de la reconnexion : ${err.message}`);
+        scheduleReconnect();
+      }
     }, delay);
   }
 
@@ -181,6 +286,10 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
       port.on('open', () => {
         logger.info(`Port série ouvert sur ${portPath}`);
         reconnectAttempts = 0; // Reset des tentatives
+        maxRetryModeAnnounced = false;
+        postMaxRetryCount = 0;
+        reconnectStartedAt = null;
+        clearSerialErrorState();
         notifyConnectionStatus(true);
         startPolling();
 
@@ -189,7 +298,7 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
       });
 
       port.on('error', (err) => {
-        logger.error(`Erreur port série : ${err.message}`);
+        logSerialError(err);
         notifyConnectionStatus(false);
         scheduleReconnect();
       });
@@ -203,44 +312,58 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
 
       // Gestion des données
       parser.on('data', (line) => {
-        const cleaned = line
-          .replace(/\x02/g, '')
-          .replace(/\x03/g, '')
-          .trim();
+        try {
+          const cleaned = line
+            .replace(/\x02/g, '')
+            .replace(/\x03/g, '')
+            .trim();
 
-        if (!cleaned) return;
+          if (!cleaned) return;
 
-        logger.info(`Trame reçue : ${cleaned}`);
+          // Identification terminal
+          if (cleaned.startsWith('I4') && cleaned.includes('"')) {
+            if (terminalIdentified) return;
 
-        // Identification terminal
-        if (cleaned.startsWith('I4') && cleaned.includes('"')) {
-          if (terminalIdentified) return;
+            const match = cleaned.match(/"(.+?)"/);
+            if (match) {
+              const terminalCode = match[1];
+              terminalIdentified = true;
+              logger.info(`Terminal identifié : ${terminalCode}`);
 
-          const match = cleaned.match(/"(.+?)"/);
-          if (match) {
-            const terminalCode = match[1];
-            terminalIdentified = true;
-            logger.info(`Terminal identifié : ${terminalCode}`);
-            if (onTerminal) onTerminal(terminalCode);
+              if (onTerminal) {
+                try {
+                  onTerminal(terminalCode);
+                } catch (err) {
+                  logger.error(`Erreur callback terminal : ${err.message}`);
+                }
+              }
+            }
+            return;
           }
-          return;
+
+          // Poids stable uniquement
+          if (!cleaned.startsWith('S S')) return;
+
+          const match = cleaned.match(/([+-]?\d+(\.\d+)?)/);
+          if (!match) return;
+
+          const weight = parseFloat(match[1]);
+          if (isNaN(weight)) return;
+
+          if (onWeight) {
+            try {
+              onWeight(weight);
+            } catch (err) {
+              logger.error(`Erreur callback poids : ${err.message}`);
+            }
+          }
+        } catch (err) {
+          logger.error(`Erreur de parsing trame série : ${err.message}`);
         }
-
-        // Poids stable uniquement
-        if (!cleaned.startsWith('S S')) return;
-
-        const match = cleaned.match(/([+-]?\d+(\.\d+)?)/);
-        if (!match) return;
-
-        const weight = parseFloat(match[1]);
-        if (isNaN(weight)) return;
-
-        logger.info(`Poids stable détecté : ${weight} kg`);
-        if (onWeight) onWeight(weight);
       });
 
     } catch (err) {
-      logger.error(`Erreur lors de l'ouverture du port : ${err.message}`);
+      logSerialError(err);
       notifyConnectionStatus(false);
       scheduleReconnect();
     }

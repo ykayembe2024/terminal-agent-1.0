@@ -37,7 +37,8 @@ Le Balance Agent est une application Node.js qui connecte une balance industriel
 
 **Algorithme de reconnexion :**
 - Retry exponentiel : 1s → 2s → 4s → ... → max 30s
-- Maximum 10 tentatives avant abandon temporaire
+- 10 premières tentatives en mode exponentiel
+- Après la 10e tentative : retries continus toutes les 1 minute (sans arrêt de l'agent)
 - Reconnexion automatique dès que le port redevient disponible
 
 **Format des trames SICS :**
@@ -63,7 +64,7 @@ S D +0123.45 kg      # Poids instable (ignoré)
 
 **Responsabilités :**
 - Envoi des poids au serveur central
-- Gestion des heartbeats (ping toutes les 5 secondes)
+- Gestion des heartbeats (ping toutes les 5 secondes uniquement quand la balance est connectée)
 - File d'attente (queue) en cas d'indisponibilité réseau
 - Suivi de l'état de connexion série
 
@@ -148,17 +149,18 @@ S D +0123.45 kg      # Poids instable (ignoré)
    Poids accepté → Payload JSON → POST /api/scale/log
    ```
 
-5. **Heartbeat continu** :
+5. **Heartbeat conditionnel** :
    ```
-   Toutes les 5s → Payload JSON → POST /api/scale/heartbeat
+  Balance connectée + terminal identifié → toutes les 5s → POST /api/scale/heartbeat
+  Balance indisponible → heartbeat suspendu automatiquement
    ```
 
 ## Gestion des Erreurs
 
 ### Reconnexion Série
 - **Détection** : Événements `error` et `close` du port série
-- **Stratégie** : Retry exponentiel avec backoff
-- **Notification** : Heartbeat inclut `serial_connected: false`
+- **Stratégie** : 10 retries exponentiels puis retries continus toutes les 1 minute
+- **Notification** : Heartbeat suspendu tant que la balance est indisponible
 
 ### Indisponibilité Réseau
 - **File d'attente** : Stockage local des poids non envoyés
