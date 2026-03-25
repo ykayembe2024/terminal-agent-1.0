@@ -54,8 +54,24 @@
 module.exports = {
 
   SERIAL: {
-    path: 'COM73',
-    autoDetect: true,
+    path: 'COM3',
+      // L'auto-détection peut être activée. En production, on préfère que
+      // l'installateur fournisse le port, mais on peut activer un fallback
+      // pour essayer de détecter automatiquement la balance si le port fourni
+      // est absent.
+      autoDetect: true,
+      /**
+       * Si true et si le port configuré est indisponible, l'agent fera un
+       * scan et tentera d'identifier la balance automatiquement (fallback).
+       */
+      fallbackDetectOnMissingPort: true,
+    /**
+     * Nombre de tentatives de reconnexion sur le port configuré avant
+     * d'activer le fallback de détection automatique des ports.
+     * Exemple: 3 -> après 3 tentatives sur le port configuré, on scannera
+     * les ports disponibles pour tenter de retrouver la balance.
+     */
+    fallbackAfterRetries: 3,
     detectProbeTimeoutMs: 2500,
     baudRate: 9600,
     dataBits: 8,

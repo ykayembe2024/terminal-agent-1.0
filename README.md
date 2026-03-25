@@ -39,6 +39,8 @@ npm start
 ✅ **API locale** pour vos applications
 ✅ **Logs détaillés** pour le dépannage
 ✅ **Fonctionnement offline** avec récupération automatique
+✅ **Détection série contrôlée** : possibilité de laisser l'installateur définir le port (env),
+  avec un scan automatique en fallback après N tentatives (configurable).
 
 ## Configuration
 
@@ -46,8 +48,14 @@ Modifiez le fichier `config.js` selon vos besoins :
 
 ```javascript
 SERIAL: {
-  path: 'COM11',  // Votre port série
-  baudRate: 9600  // Vitesse de connexion
+  path: 'COM11',  // Votre port série (optionnel). L'agent préfère ce port si fourni.
+  baudRate: 9600, // Vitesse de connexion
+  // Si le port configuré ne répond pas, l'agent peut démarrer un scan de fallback
+  // après `fallbackAfterRetries` tentatives de reconnexion :
+  fallbackDetectOnMissingPort: true,
+  fallbackAfterRetries: 3,
+  // Timeout en ms pour les probes lors de la détection
+  detectProbeTimeoutMs: 1500
 },
 API: {
   url: 'https://votre-serveur.com/api/scale/log',
@@ -80,6 +88,9 @@ Les logs sont dans le dossier `logs/` :
 - Consultez `logs/YYYY-MM-DD.log` pour les événements du jour
 - Les erreurs sont marquées `[ERROR]`
 - Les avertissements sont marqués `[WARN]`
+Note : le logger effectue une dé-duplication des lignes répétées (limite à 2 impressions
+identiques avant résumé) et a réduit la verbosité des messages sur la mise en queue des
+poids (la taille de la queue est exposée via `/health` si nécessaire).
 
 ## Architecture technique
 
@@ -203,7 +214,11 @@ Réponse :
 {
   "status": "ok",
   "service": "balance-agent",
-  "uptime": 1542
+  "uptime": 1542,
+  "serial_connected": true,
+  "queue_size": 0,
+  "last_network_error": null,
+  "last_critical_error": null
 }
 ```
 

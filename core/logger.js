@@ -215,6 +215,10 @@ function logWithDedup(level, levelNum, rawMessage) {
     if (lastLogState && lastLogState.key === key) {
       lastLogState.count += 1;
       lastLogState.lastAt = now;
+      // Autoriser jusqu'à 2 occurrences identiques à être écrites
+      if (lastLogState.count <= 2) {
+        writeLine(level, levelNum, message, now);
+      }
       return;
     }
 

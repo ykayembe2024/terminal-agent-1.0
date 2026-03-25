@@ -34,6 +34,30 @@ class WeightStore {
      * @type {string|null}
      */
     this.terminalCode = null;
+
+    /**
+     * Dernière erreur réseau (string|null)
+     * @type {string|null}
+     */
+    this.lastNetworkError = null;
+
+    /**
+     * Dernière erreur critique (string|null)
+     * @type {string|null}
+     */
+    this.lastCriticalError = null;
+
+    /**
+     * Taille actuelle de la queue d'envoi
+     * @type {number}
+     */
+    this.queueSize = 0;
+
+    /**
+     * État de connexion série
+     * @type {boolean}
+     */
+    this.serialConnected = false;
   }
 
   /**
@@ -56,6 +80,38 @@ class WeightStore {
   }
 
   /**
+   * Définit l'erreur réseau courante
+   * @param {string|null} msg
+   */
+  setNetworkError(msg) {
+    this.lastNetworkError = msg || null;
+  }
+
+  /**
+   * Définit l'erreur critique courante
+   * @param {string|null} msg
+   */
+  setCriticalError(msg) {
+    this.lastCriticalError = msg || null;
+  }
+
+  /**
+   * Met à jour la taille de la queue
+   * @param {number} n
+   */
+  setQueueSize(n) {
+    this.queueSize = Number(n) || 0;
+  }
+
+  /**
+   * Définit l'état de connexion série
+   * @param {boolean} v
+   */
+  setSerialConnected(v) {
+    this.serialConnected = !!v;
+  }
+
+  /**
    * Récupère les données actuelles de poids
    * @returns {Object} Données de poids formatées
    * @returns {string|null} return.terminal_code - Code du terminal
@@ -67,6 +123,22 @@ class WeightStore {
       terminal_code: this.terminalCode,
       weight: this.weight,
       timestamp: this.timestamp
+    };
+  }
+
+  /**
+   * Retourne un état étendu pour l'API /health
+   * @returns {Object}
+   */
+  getStatus() {
+    return {
+      terminal_code: this.terminalCode,
+      weight: this.weight,
+      timestamp: this.timestamp,
+      last_network_error: this.lastNetworkError,
+      last_critical_error: this.lastCriticalError,
+      queue_size: this.queueSize,
+      serial_connected: this.serialConnected
     };
   }
 

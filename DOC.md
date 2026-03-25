@@ -40,6 +40,9 @@ Le Balance Agent est une application Node.js qui connecte une balance industriel
 - 10 premières tentatives en mode exponentiel
 - Après la 10e tentative : retries continus toutes les 1 minute (sans arrêt de l'agent)
 - Reconnexion automatique dès que le port redevient disponible
+ - Fallback : si le port configuré ne répond pas après N tentatives (configurable),
+   l'agent effectue un scan des ports disponibles et tentera d'identifier la balance automatiquement.
+ - Priorisation de ports probables (COM3..COM10) pendant les scans pour accélérer la détection.
 
 **Format des trames SICS :**
 ```
@@ -67,6 +70,10 @@ S D +0123.45 kg      # Poids instable (ignoré)
 - Gestion des heartbeats (ping toutes les 5 secondes uniquement quand la balance est connectée)
 - File d'attente (queue) en cas d'indisponibilité réseau
 - Suivi de l'état de connexion série
+ - Heartbeat enrichi : envoie immédiat d'un heartbeat lorsque la balance se déconnecte ou se reconnecte
+   (payload inclut `heartbeat_event: 'serial_disconnected'` ou `'serial_connected'`).
+ - Le heartbeat inclut aussi, si disponible, `last_critical_error` (erreurs série critiques)
+   et `last_network_error` (détails de la dernière erreur réseau rencontrée).
 
 **Payload API :**
 ```json
@@ -84,6 +91,17 @@ S D +0123.45 kg      # Poids instable (ignoré)
   "terminal_code": "C150168653",
   "hostname": "server-name",
   "serial_connected": true
+}
+```
+Exemple enrichi (quand une erreur réseau/critique existe) :
+```json
+{
+  "terminal_code": "C150168653",
+  "hostname": "server-name",
+  "serial_connected": false,
+  "heartbeat_event": "serial_disconnected",
+  "last_critical_error": "Erreur port série : ...",
+  "last_network_error": "No response from http://...: timeout"
 }
 ```
 
@@ -117,6 +135,8 @@ S D +0123.45 kg      # Poids instable (ignoré)
 - Stockage en mémoire des données actuelles
 - Interface pour le serveur HTTP local
 - Synchronisation thread-safe
+ - Expose aussi l'état étendu pour `/health` : `last_network_error`, `last_critical_error`,
+   `queue_size`, `serial_connected`.
 
 ### 7. Queue Manager (`core/queueManager.js`)
 

@@ -98,11 +98,22 @@ function startServer() {
    */
   app.get('/health', (req, res) => {
 
-    res.json({
-      status: "ok",
-      service: "balance-agent",
-      uptime: process.uptime()
-    });
+      try {
+        const status = weightStore.getStatus ? weightStore.getStatus() : {};
+
+        res.json(Object.assign({
+          status: "ok",
+          service: "balance-agent",
+          uptime: process.uptime()
+        }, status));
+      } catch (err) {
+        logger.error(`Erreur endpoint /health : ${err.message}`);
+        res.json({
+          status: "ok",
+          service: "balance-agent",
+          uptime: process.uptime()
+        });
+      }
 
   });
 

@@ -1,2 +1,7 @@
 /logs/*
 /node_modules/*
+/scripts/balance-agent.exe
+
+# If you produce other build artifacts, consider adding patterns like:
+# *.exe
+# /dist/

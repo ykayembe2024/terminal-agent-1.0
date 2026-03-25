@@ -8,6 +8,20 @@
 const {createRequire} = require("module");
 const requireFile = createRequire(__filename);
 
+// Charger les variables d'environnement depuis un fichier .env (optionnel)
+// Priorité d'utilisation des paramètres :
+// 1) Variable d'environnement système (ex: setx /M SERIAL_PATH "COM3")
+// 2) Fichier .env présent dans le répertoire de travail (SERIAL_PATH=COM3)
+// 3) Valeur dans config.SERIAL.path
+try {
+  // require('dotenv') peut ne pas être installé dans tous les environnements
+  // ; si absent, on continue sans erreur.
+  const dotenv = require('dotenv');
+  dotenv.config({ path: require('path').join(process.cwd(), '.env') });
+} catch (err) {
+  // noop - dotenv absent
+}
+
 const logger = requireFile('./core/logger');
 const startReader = requireFile('./serial/reader');
 const SyncService = requireFile('./core/syncService');
@@ -41,19 +55,21 @@ async function startAgent() {
   });
 
   try {
-    const portPath = config.SERIAL.path;
-    const autoDetect = config.SERIAL.autoDetect === true;
+  // Permettre à l'installateur (InnoSetup) de définir le port via variable d'environnement
+  // L'installateur peut écrire la variable SYSTEM-wide SERIAL_PATH ou modifier config.
+    const portPath = process.env.SERIAL_PATH || config.SERIAL.path;
 
-    if (!autoDetect && !portPath) {
-      throw new Error('config.SERIAL.path est non défini');
+    // L'auto-détection série a été désactivée. L'installateur doit fournir
+    // explicitement le port série (via SERIAL_PATH ou en éditant config.SERIAL.path).
+    if (!portPath) {
+      throw new Error('Aucun port série configuré. Fournir la variable d\'environnement SERIAL_PATH ou config.SERIAL.path');
     }
 
-    logger.info(
-      autoDetect
-        ? 'Mode série: auto-détection du port balance activée'
-        : `Mode série: port fixe (${portPath})`
-    );
+    logger.info(`Mode série: port fixe (${portPath})`);
 
+    // Note: le 5ème argument est un callback d'erreur critique (string|null)
+    // Le reader l'appelle quand un problème majeur empêche le polling.
+    // On la transmet au SyncService pour inclusion dans le heartbeat.
     reader = startReader(
       portPath || null,
       (terminalCode) => {
@@ -66,6 +82,13 @@ async function startAgent() {
       },
       (connected) => {
         syncService.setSerialConnectionStatus(connected);
+      },
+      (criticalMessage) => {
+        try {
+          syncService.setCriticalError(criticalMessage);
+        } catch (err) {
+          logger.error(`Erreur setCriticalError: ${err.message}`);
+        }
       }
     );
 

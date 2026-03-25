@@ -32,9 +32,10 @@ const logger = requireFile('../core/logger');
  * @param {Function} onTerminal - Callback appelé quand le terminal est identifié
  * @param {Function} onWeight - Callback appelé pour chaque poids détecté
  * @param {Function} onConnectionStatus - Callback appelé quand l'état de connexion change
+ * @param {Function} [onCriticalError] - Callback appelé quand une erreur critique série survient (message) ou null quand résolu
  * @returns {Object} Interface de contrôle { stop() }
  */
-function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
+function startReader(portPath, onTerminal, onWeight, onConnectionStatus, onCriticalError) {
 
   /**
    * Variables d'état pour la gestion de connexion
@@ -124,6 +125,13 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
   let reconnectStartedAt = null;
 
   /**
+   * Flag interne : active la recherche automatique de ports (fallback)
+   * après plusieurs tentatives de reconnexion échouées sur le port configuré.
+   * @type {boolean}
+   */
+  let enableFallbackScan = false;
+
+  /**
    * Port réellement utilisé par la connexion active.
    * Peut changer en mode auto-détection.
    * @type {string|null}
@@ -199,6 +207,10 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
    * @returns {boolean}
    */
   function isAutoDetectEnabled() {
+    /**
+     * Retourne la configuration d'auto-détection.
+     * On peut activer l'auto-détection globale via config.SERIAL.autoDetect.
+     */
     return config.SERIAL.autoDetect === true;
   }
 
@@ -212,22 +224,42 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
     if (!isAutoDetectEnabled()) {
       return portPath ? [portPath] : [];
     }
-
     const ports = await SerialPort.list();
-    const paths = ports.map((item) => item.path).filter(Boolean);
+    const paths = ports.map((item) => item.path).filter(Boolean).map(p => String(p).toUpperCase());
 
-    if (!portPath) {
-      return paths;
+    // Liste de ports privilégiés pour accélérer la détection (ex: COM3..COM10)
+    const preferred = [];
+    for (let i = 3; i <= 10; i++) preferred.push(`COM${i}`);
+
+    const result = [];
+
+    // 1) Ajouter le port configuré en premier s'il est fourni
+    const provided = portPath ? String(portPath).toUpperCase() : null;
+    if (provided) result.push(provided);
+
+    // 2) Ajouter les ports privilégiés présents
+    for (const p of preferred) {
+      if (paths.includes(p) && !result.includes(p)) result.push(p);
     }
 
-    const dedup = [portPath, ...paths].filter((value, index, arr) => arr.indexOf(value) === index);
-    return dedup;
+    // 3) Ajouter le reste des ports détectés
+    for (const p of paths) {
+      if (!result.includes(p)) result.push(p);
+    }
+
+    return result;
   }
 
   /**
    * Teste un port en envoyant une commande SICS I4 pour confirmer qu'il s'agit d'une balance.
    * @param {string} candidatePath - Port à tester
    * @returns {Promise<{ ok: boolean, terminalCode: string|null }>} Résultat du test
+   */
+  /**
+   * Teste un port série pour vérifier s'il s'agit d'une balance SICS.
+   * Envoie la commande I4 et lit la réponse pendant un timeout.
+   * @param {string} candidatePath
+   * @returns {Promise<{ok:boolean, terminalCode:string|null}>}
    */
   async function probeSicsPort(candidatePath) {
     const timeoutMs = Number(config.SERIAL.detectProbeTimeoutMs) || 2500;
@@ -256,7 +288,7 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
             }
           }
         } catch {
-          // Erreur de fermeture ignorée volontairement pendant le probe
+          // ignore
         }
 
         resolve({ ok, terminalCode });
@@ -287,12 +319,12 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
               .trim();
 
             if (!cleaned) return;
-            // Exclure les protocoles GPS/NMEA (trames commençant par '$')
             if (cleaned.startsWith('$')) {
-              logger.warn(`Port ${candidatePath} ignoré : protocole GPS/NMEA détecté`);
+              // NMEA/GPS frames — ignore
               finish(false, null);
               return;
             }
+
             if (!cleaned.startsWith('I4') || !cleaned.includes('"')) return;
 
             const match = cleaned.match(/"(.+?)"/);
@@ -334,12 +366,67 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
    * qui répond à la commande SICS I4.
    * @returns {Promise<string>} Port sélectionné
    */
+  /**
+   * Résout le port à utiliser pour la connexion active.
+   * Stratégie :
+   *  - si un port est fourni, on vérifie son format et on probe ce port
+   *  - si le probe échoue et que config.SERIAL.fallbackDetectOnMissingPort === true,
+   *    on parcourt les ports disponibles et on probe chacun jusqu'à trouver la balance
+   *  - sinon on lève une erreur
+   * @returns {Promise<string>} Port sélectionné
+   */
   async function resolvePortPath() {
-    if (!isAutoDetectEnabled()) {
-      if (!portPath) {
-        throw new Error('Aucun port série configuré');
+    const provided = portPath ? String(portPath).toUpperCase() : null;
+
+    if (provided) {
+      if (!/^COM\d+$/.test(provided)) {
+        throw new Error(`Port série invalide: ${portPath}. Le port doit être au format COM<number> (ex: COM3)`);
       }
-      return portPath;
+
+      // Tentative rapide : probe du port fourni
+      const probeResult = await probeSicsPort(provided);
+      if (probeResult.ok) {
+        logger.info(`Port configuré ${provided} validé par probe${probeResult.terminalCode ? ` (terminal=${probeResult.terminalCode})` : ''}`);
+        return provided;
+      }
+
+      // Si le probe a échoué :
+      // - si le fallback est autorisé ET que enableFallbackScan est true (après N tentatives),
+      //   on effectue la détection automatique complète
+      if (config.SERIAL.fallbackDetectOnMissingPort && enableFallbackScan) {
+        logger.warn(`Port configuré ${provided} invalide ou non disponible — fallback auto-détection activée`);
+        const allPorts = await SerialPort.list();
+        const candidates = await getCandidatePorts();
+
+        if (!candidates.length) {
+          throw new Error('Aucun port série détecté sur la machine');
+        }
+
+        logger.info(`Auto-détection série: ${candidates.length} port(s) à tester: ${candidates.join(', ')}`);
+
+        for (const candidate of candidates) {
+          const result = await probeSicsPort(candidate);
+          if (result.ok) {
+            logger.info(`Auto-détection série: balance trouvée sur ${candidate}${result.terminalCode ? ` (terminal=${result.terminalCode})` : ''}`);
+            return candidate;
+          }
+        }
+
+        const portSummary = allPorts
+          .map((p) => `${p.path}${p.friendlyName ? ` (${p.friendlyName})` : ''}${p.manufacturer ? ` [${p.manufacturer}]` : ''}`)
+          .join(', ') || 'aucun';
+
+        throw new Error(`Aucun port balance SICS valide détecté. Ports disponibles: ${portSummary}`);
+      }
+
+      // Si le fallback n'est pas encore activé, on réessaie simplement le port configuré
+      logger.warn(`Probe initial du port ${provided} échoué — réessai sur le même port avant fallback`);
+      return provided;
+    }
+
+    // Aucun port fourni — en mode auto-detect complet on parcourra les ports
+    if (!isAutoDetectEnabled()) {
+      throw new Error('Aucun port série fourni. L\'installateur doit fournir le port (ex: COM3).');
     }
 
     const allPorts = await SerialPort.list();
@@ -359,7 +446,6 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
       }
     }
 
-    // Aucun port SICS trouvé — lister les ports disponibles pour diagnostic
     const portSummary = allPorts
       .map((p) => `${p.path}${p.friendlyName ? ` (${p.friendlyName})` : ''}${p.manufacturer ? ` [${p.manufacturer}]` : ''}`)
       .join(', ') || 'aucun';
@@ -385,6 +471,14 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
         count: 1
       };
       logger.error(`${message} (début=${new Date(now).toISOString()})`);
+      // Notifier une erreur critique une seule fois au début
+      if (onCriticalError) {
+        try {
+          onCriticalError(message);
+        } catch (cbErr) {
+          logger.error(`Erreur callback critical error : ${cbErr.message}`);
+        }
+      }
       return;
     }
 
@@ -411,6 +505,14 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
     );
 
     serialErrorState = null;
+    // Notifier la résolution de l'erreur critique
+    if (onCriticalError) {
+      try {
+        onCriticalError(null);
+      } catch (cbErr) {
+        logger.error(`Erreur callback critical error clear : ${cbErr.message}`);
+      }
+    }
   }
 
   function scheduleReconnect() {
@@ -430,6 +532,16 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
     if (reconnectAttempts < maxReconnectAttempts) {
       delay = Math.min(baseReconnectDelay * Math.pow(2, reconnectAttempts), maxReconnectDelay);
       reconnectAttempts++;
+      // Activer le fallback (scan des ports) si on dépasse le seuil configuré
+      try {
+        const threshold = Number(config.SERIAL.fallbackAfterRetries) || 3;
+        if (!enableFallbackScan && config.SERIAL.fallbackDetectOnMissingPort && reconnectAttempts >= threshold) {
+          enableFallbackScan = true;
+          logger.warn(`Activation du fallback auto-détection après ${reconnectAttempts} tentatives`);
+        }
+      } catch (e) {
+        // ignore config parsing errors
+      }
     } else {
       delay = retryAfterMaxDelay;
       postMaxRetryCount++;
@@ -475,6 +587,8 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
         maxRetryModeAnnounced = false;
         postMaxRetryCount = 0;
         reconnectStartedAt = null;
+  // Réinitialiser le fallback de scan après une ouverture réussie
+  enableFallbackScan = false;
         clearSerialErrorState();
         notifyConnectionStatus(true);
         startPolling();
@@ -556,6 +670,14 @@ function startReader(portPath, onTerminal, onWeight, onConnectionStatus) {
     } catch (err) {
       logSerialError(err);
       notifyConnectionStatus(false);
+      // notifier l'erreur critique si possible
+      if (onCriticalError) {
+        try {
+          onCriticalError(err.message);
+        } catch (cbErr) {
+          logger.error(`Erreur callback critical error (connect): ${cbErr.message}`);
+        }
+      }
       scheduleReconnect();
     }
   }

@@ -15,6 +15,23 @@ const os = require('os');
 const config = requireFile('../config');
 const logger = requireFile('./logger');
 const QueueManager = requireFile('./queueManager');
+const weightStore = requireFile('./weightStore');
+
+/**
+ * Safely convert a value to a string for logging/payload
+ * @param {*} value
+ * @returns {string}
+ */
+function safeString(value) {
+  if (value === undefined) return 'undefined';
+  if (value === null) return 'null';
+  try {
+    if (typeof value === 'string') return value;
+    return JSON.stringify(value);
+  } catch (err) {
+    try { return String(value); } catch { return 'unknown'; }
+  }
+}
 
 /**
  * Service de synchronisation des poids avec le serveur central
@@ -45,6 +62,10 @@ class SyncService {
      * @type {QueueManager}
      */
     this.queue = new QueueManager();
+    // initial queue size
+    try {
+      weightStore.setQueueSize(this.queue.size());
+    } catch {}
 
     /**
      * Flag pour éviter les flush simultanés
@@ -58,11 +79,24 @@ class SyncService {
      */
     this.serialConnected = false;
 
+  /**
+   * Dernière erreur critique rapportée par le reader (string|null)
+   * @type {string|null}
+   */
+  this.lastCriticalError = null;
+
     /**
      * Dernier état série loggé pour éviter les logs dupliqués
      * @type {boolean|null}
      */
     this.lastLoggedSerialState = null;
+
+  /**
+   * Dernière erreur réseau rencontrée lors d'un heartbeat (string|null)
+   * Conservée pour être renvoyée dans le heartbeat suivant lorsque le serveur redevient disponible
+   * @type {string|null}
+   */
+  this.lastNetworkError = null;
 
     /**
      * Timer du heartbeat (null quand arrêté)
@@ -114,9 +148,17 @@ class SyncService {
 
     // Le heartbeat doit s'arrêter tant que la balance n'est pas atteinte.
     if (connected) {
+      // Clear critical error on reconnection
+      this.setCriticalError(null);
+      try { weightStore.setSerialConnected(true); } catch {}
       this.startHeartbeat();
+      // Envoi immédiat d'un heartbeat pour notifier la reconnexion
+      try { this.sendHeartbeat(true, 'serial_connected').catch(()=>{}); } catch {}
     } else {
+      try { weightStore.setSerialConnected(false); } catch {}
       this.stopHeartbeat();
+      // Envoi immédiat d'un heartbeat pour notifier la déconnexion
+      try { this.sendHeartbeat(true, 'serial_disconnected').catch(()=>{}); } catch {}
     }
 
     if (previous !== connected && !connected) {
@@ -192,8 +234,11 @@ class SyncService {
 
     } catch (err) {
       try {
-        this.queue.push(payload);
-        logger.warn(`Poids mis en queue (${this.queue.size()} éléments)`);
+  this.queue.push(payload);
+  // Log minimal pour éviter le flood de messages variables (la taille de la queue
+  // est exposée via /health). On conserve un warning simple.
+  logger.warn('Poids mis en queue');
+        try { weightStore.setQueueSize(this.queue.size()); } catch {}
       } catch (queueErr) {
         logger.error(`Échec stockage queue : ${queueErr.message}`);
       }
@@ -206,10 +251,10 @@ class SyncService {
    * @async
    * @returns {Promise<void>}
    */
-  async sendHeartbeat() {
+  async sendHeartbeat(force = false, event = null) {
 
-    // Heartbeat désactivé si terminal non connu ou balance indisponible.
-    if (!this.terminalCode || !this.serialConnected) {
+    // Par défaut, n'envoie que si terminal connu et série connectée.
+    if (!force && (!this.terminalCode || !this.serialConnected)) {
       return;
     }
 
@@ -218,6 +263,19 @@ class SyncService {
       hostname: this.hostname,
       serial_connected: this.serialConnected
     };
+
+    if (event) {
+      payload.heartbeat_event = event;
+    }
+
+    // Inclure la dernière erreur critique si présente
+    if (this.lastCriticalError) {
+      payload.last_critical_error = this.lastCriticalError;
+    }
+    // Inclure la dernière erreur réseau si présente
+    if (this.lastNetworkError) {
+      payload.last_network_error = this.lastNetworkError;
+    }
 
     try {
 
@@ -235,21 +293,58 @@ class SyncService {
         logger.warn(`Heartbeat statut inattendu (${response.status})`);
       }
 
+      // Succès : on efface l'erreur réseau précédente
+      this.lastNetworkError = null;
+      try { weightStore.setNetworkError(null); } catch {}
+
+      // Si on a forcé l'envoi pour notifier un event, loggons-le.
+      if (force && event) {
+        logger.info(`Heartbeat envoyé (event=${event})`);
+      }
+
     } catch (err) {
 
-      if (err.response) {
-        // Le serveur a répondu avec une erreur HTTP
-        logger.error(`Heartbeat HTTP ${err.response.status}`);
-        logger.error(`Réponse serveur: ${JSON.stringify(err.response.data)}`);
+      // Construire un message d'erreur réseau détaillé
+      try {
+        if (err.response) {
+          // Le serveur a répondu avec une erreur HTTP
+          const status = err.response.status;
+          const data = err.response.data;
+          const msg = `HTTP ${status} - ${safeString(data)}`;
+          logger.error(`Heartbeat HTTP ${status}`);
+          logger.error(`Réponse serveur: ${JSON.stringify(data)}`);
+          this.lastNetworkError = `HTTP ${status}: ${safeString(data)}`;
+          try { weightStore.setNetworkError(this.lastNetworkError); } catch {}
+        } else if (err.request) {
+          // La requête est partie mais aucune réponse
+          const code = err.code || '';
+          const url = err.config && err.config.url ? err.config.url : config.API.heartbeatUrl;
+          const msg = `${err.message || 'No response'} ${code}`.trim();
+          logger.error(`Heartbeat : aucune réponse du serveur (${msg}) url=${url}`);
+          this.lastNetworkError = `No response from ${url}: ${msg}`;
+          try { weightStore.setNetworkError(this.lastNetworkError); } catch {}
+        } else {
+          // Erreur interne Axios ou autre
+          logger.error(`Heartbeat erreur: ${err.message}`);
+          this.lastNetworkError = `Error: ${err.message}`;
+          try { weightStore.setNetworkError(this.lastNetworkError); } catch {}
+        }
+      } catch (logErr) {
+        logger.error(`Erreur lors du traitement de l'erreur heartbeat: ${logErr.message}`);
       }
-      else if (err.request) {
-        // La requête est partie mais aucune réponse
-        logger.error("Heartbeat : aucune réponse du serveur");
-      }
-      else {
-        // Erreur interne Axios
-        logger.error(`Heartbeat erreur: ${err.message}`);
-      }
+    }
+  }
+
+  /**
+   * Définit/efface l'erreur critique courante
+   * @param {string|null} message
+   */
+  setCriticalError(message) {
+    this.lastCriticalError = message || null;
+    if (message) {
+      logger.error(`Erreur critique série: ${message}`);
+    } else {
+      logger.info('Erreur critique série résolue');
     }
   }
 
@@ -284,6 +379,7 @@ class SyncService {
       }
 
       this.queue.replaceAll(remaining);
+      try { weightStore.setQueueSize(this.queue.size()); } catch {}
       if (remaining.length < items.length) {
         logger.info(`Flush partiel: ${items.length - remaining.length} éléments envoyés`);
       }

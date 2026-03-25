@@ -1,0 +1,1352 @@
+[
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 0,
+    "reading_datetime": "2026-03-25T09:52:36.715Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 0,
+    "reading_datetime": "2026-03-25T09:55:57.769Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 0,
+    "reading_datetime": "2026-03-25T09:56:57.913Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 0,
+    "reading_datetime": "2026-03-25T09:57:58.018Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 0,
+    "reading_datetime": "2026-03-25T09:58:58.117Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 0,
+    "reading_datetime": "2026-03-25T09:59:58.269Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 0,
+    "reading_datetime": "2026-03-25T10:00:58.372Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 0,
+    "reading_datetime": "2026-03-25T10:01:58.518Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 0,
+    "reading_datetime": "2026-03-25T10:02:58.619Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 0,
+    "reading_datetime": "2026-03-25T10:04:39.321Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 0,
+    "reading_datetime": "2026-03-25T10:05:39.416Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 0,
+    "reading_datetime": "2026-03-25T10:06:39.512Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 0,
+    "reading_datetime": "2026-03-25T10:07:39.623Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 0,
+    "reading_datetime": "2026-03-25T10:08:39.772Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 0,
+    "reading_datetime": "2026-03-25T10:09:39.870Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1570,
+    "reading_datetime": "2026-03-25T10:10:03.946Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1570,
+    "reading_datetime": "2026-03-25T10:10:07.920Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1570,
+    "reading_datetime": "2026-03-25T10:10:11.971Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1570,
+    "reading_datetime": "2026-03-25T10:10:15.970Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1570,
+    "reading_datetime": "2026-03-25T10:10:19.973Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1570,
+    "reading_datetime": "2026-03-25T10:10:23.969Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1570,
+    "reading_datetime": "2026-03-25T10:10:27.969Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1570,
+    "reading_datetime": "2026-03-25T10:10:31.973Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1570,
+    "reading_datetime": "2026-03-25T10:10:36.025Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1570,
+    "reading_datetime": "2026-03-25T10:10:40.019Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1570,
+    "reading_datetime": "2026-03-25T10:10:43.973Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1570,
+    "reading_datetime": "2026-03-25T10:10:48.023Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1570,
+    "reading_datetime": "2026-03-25T10:10:52.020Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:11:00.021Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:11:04.020Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:11:08.020Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:11:12.092Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:11:16.073Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:11:20.070Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:11:24.070Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1740,
+    "reading_datetime": "2026-03-25T10:11:28.073Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1740,
+    "reading_datetime": "2026-03-25T10:11:32.069Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:11:36.070Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:11:40.073Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:11:44.124Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:11:48.119Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:11:52.123Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:11:56.123Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:12:00.120Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:12:04.312Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:12:08.171Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:12:12.174Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:12:16.172Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:12:20.170Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:12:24.177Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:12:28.172Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:12:32.170Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:12:36.173Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:12:40.224Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:12:44.221Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:12:48.220Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:12:52.225Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:12:56.220Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1740,
+    "reading_datetime": "2026-03-25T10:13:00.226Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1740,
+    "reading_datetime": "2026-03-25T10:13:04.221Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:13:08.277Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:13:12.271Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:13:16.275Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:13:20.275Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:13:24.276Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:13:28.272Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:13:32.321Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:13:36.509Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:13:40.378Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:13:44.371Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:13:48.370Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1740,
+    "reading_datetime": "2026-03-25T10:13:52.370Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:13:56.367Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1741,
+    "reading_datetime": "2026-03-25T10:14:00.368Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1830,
+    "reading_datetime": "2026-03-25T10:14:16.417Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1824,
+    "reading_datetime": "2026-03-25T10:14:24.417Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1824,
+    "reading_datetime": "2026-03-25T10:14:28.417Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1826,
+    "reading_datetime": "2026-03-25T10:14:36.469Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1826,
+    "reading_datetime": "2026-03-25T10:14:40.468Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1826,
+    "reading_datetime": "2026-03-25T10:14:44.466Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1829,
+    "reading_datetime": "2026-03-25T10:14:48.470Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1825,
+    "reading_datetime": "2026-03-25T10:14:56.462Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1830,
+    "reading_datetime": "2026-03-25T10:15:16.515Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1825,
+    "reading_datetime": "2026-03-25T10:15:20.512Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1826,
+    "reading_datetime": "2026-03-25T10:15:24.513Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1831,
+    "reading_datetime": "2026-03-25T10:15:32.512Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1824,
+    "reading_datetime": "2026-03-25T10:15:40.515Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1829,
+    "reading_datetime": "2026-03-25T10:15:48.563Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1825,
+    "reading_datetime": "2026-03-25T10:15:52.559Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1825,
+    "reading_datetime": "2026-03-25T10:15:56.563Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1825,
+    "reading_datetime": "2026-03-25T10:16:00.560Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1843,
+    "reading_datetime": "2026-03-25T10:16:04.610Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1845,
+    "reading_datetime": "2026-03-25T10:16:12.613Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1844,
+    "reading_datetime": "2026-03-25T10:16:16.616Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1844,
+    "reading_datetime": "2026-03-25T10:16:20.609Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1844,
+    "reading_datetime": "2026-03-25T10:16:24.659Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1842,
+    "reading_datetime": "2026-03-25T10:16:28.666Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1837,
+    "reading_datetime": "2026-03-25T10:16:36.660Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1844,
+    "reading_datetime": "2026-03-25T10:16:40.663Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1843,
+    "reading_datetime": "2026-03-25T10:16:44.660Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1841,
+    "reading_datetime": "2026-03-25T10:16:48.662Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1841,
+    "reading_datetime": "2026-03-25T10:16:52.675Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1841,
+    "reading_datetime": "2026-03-25T10:16:56.729Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1840,
+    "reading_datetime": "2026-03-25T10:17:00.722Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1825,
+    "reading_datetime": "2026-03-25T10:17:04.722Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1825,
+    "reading_datetime": "2026-03-25T10:17:08.723Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1825,
+    "reading_datetime": "2026-03-25T10:17:12.727Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1825,
+    "reading_datetime": "2026-03-25T10:17:16.722Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1825,
+    "reading_datetime": "2026-03-25T10:17:20.778Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1825,
+    "reading_datetime": "2026-03-25T10:17:24.776Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1825,
+    "reading_datetime": "2026-03-25T10:17:28.778Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 0,
+    "reading_datetime": "2026-03-25T10:17:36.776Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 2481,
+    "reading_datetime": "2026-03-25T10:18:32.923Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 2481,
+    "reading_datetime": "2026-03-25T10:18:36.926Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1845,
+    "reading_datetime": "2026-03-25T10:18:56.973Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1845,
+    "reading_datetime": "2026-03-25T10:19:00.982Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1844,
+    "reading_datetime": "2026-03-25T10:19:04.975Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1844,
+    "reading_datetime": "2026-03-25T10:19:09.122Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1848,
+    "reading_datetime": "2026-03-25T10:19:13.074Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1848,
+    "reading_datetime": "2026-03-25T10:19:17.073Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1848,
+    "reading_datetime": "2026-03-25T10:19:21.076Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1851,
+    "reading_datetime": "2026-03-25T10:19:25.076Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1853,
+    "reading_datetime": "2026-03-25T10:19:29.072Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1857,
+    "reading_datetime": "2026-03-25T10:19:33.123Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1845,
+    "reading_datetime": "2026-03-25T10:19:41.125Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1854,
+    "reading_datetime": "2026-03-25T10:19:45.122Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1854,
+    "reading_datetime": "2026-03-25T10:19:49.122Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1851,
+    "reading_datetime": "2026-03-25T10:19:53.175Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1845,
+    "reading_datetime": "2026-03-25T10:20:13.173Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1844,
+    "reading_datetime": "2026-03-25T10:20:17.177Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1844,
+    "reading_datetime": "2026-03-25T10:20:21.175Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1844,
+    "reading_datetime": "2026-03-25T10:20:25.227Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1844,
+    "reading_datetime": "2026-03-25T10:20:29.223Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1844,
+    "reading_datetime": "2026-03-25T10:20:33.222Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1844,
+    "reading_datetime": "2026-03-25T10:20:37.225Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1844,
+    "reading_datetime": "2026-03-25T10:20:41.221Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1844,
+    "reading_datetime": "2026-03-25T10:20:45.224Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1844,
+    "reading_datetime": "2026-03-25T10:20:49.230Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1844,
+    "reading_datetime": "2026-03-25T10:20:53.223Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 0,
+    "reading_datetime": "2026-03-25T10:21:01.271Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 2627,
+    "reading_datetime": "2026-03-25T10:22:05.427Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 2627,
+    "reading_datetime": "2026-03-25T10:22:10.062Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 2627,
+    "reading_datetime": "2026-03-25T10:22:13.622Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 2628,
+    "reading_datetime": "2026-03-25T10:22:17.625Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 2628,
+    "reading_datetime": "2026-03-25T10:22:21.625Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1856,
+    "reading_datetime": "2026-03-25T10:22:53.722Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1856,
+    "reading_datetime": "2026-03-25T10:22:57.718Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1856,
+    "reading_datetime": "2026-03-25T10:23:01.769Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1856,
+    "reading_datetime": "2026-03-25T10:23:05.773Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1814,
+    "reading_datetime": "2026-03-25T10:23:13.768Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1814,
+    "reading_datetime": "2026-03-25T10:23:17.819Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1814,
+    "reading_datetime": "2026-03-25T10:23:21.820Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1814,
+    "reading_datetime": "2026-03-25T10:23:25.822Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1815,
+    "reading_datetime": "2026-03-25T10:23:29.825Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1815,
+    "reading_datetime": "2026-03-25T10:23:33.822Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1815,
+    "reading_datetime": "2026-03-25T10:23:37.873Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1821,
+    "reading_datetime": "2026-03-25T10:23:41.875Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1823,
+    "reading_datetime": "2026-03-25T10:23:53.876Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1815,
+    "reading_datetime": "2026-03-25T10:24:01.923Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1815,
+    "reading_datetime": "2026-03-25T10:24:05.926Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1823,
+    "reading_datetime": "2026-03-25T10:24:09.926Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1824,
+    "reading_datetime": "2026-03-25T10:24:13.922Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1822,
+    "reading_datetime": "2026-03-25T10:24:17.924Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1822,
+    "reading_datetime": "2026-03-25T10:24:21.926Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1821,
+    "reading_datetime": "2026-03-25T10:24:25.924Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1820,
+    "reading_datetime": "2026-03-25T10:24:29.972Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1822,
+    "reading_datetime": "2026-03-25T10:24:33.973Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1822,
+    "reading_datetime": "2026-03-25T10:24:37.976Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1815,
+    "reading_datetime": "2026-03-25T10:24:41.973Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1815,
+    "reading_datetime": "2026-03-25T10:24:45.982Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1815,
+    "reading_datetime": "2026-03-25T10:24:49.976Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1815,
+    "reading_datetime": "2026-03-25T10:24:53.983Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1815,
+    "reading_datetime": "2026-03-25T10:24:58.023Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1815,
+    "reading_datetime": "2026-03-25T10:25:02.023Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1815,
+    "reading_datetime": "2026-03-25T10:25:06.025Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1815,
+    "reading_datetime": "2026-03-25T10:25:10.024Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1815,
+    "reading_datetime": "2026-03-25T10:25:14.023Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1815,
+    "reading_datetime": "2026-03-25T10:25:18.026Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 0,
+    "reading_datetime": "2026-03-25T10:25:22.076Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 0,
+    "reading_datetime": "2026-03-25T10:26:22.227Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 2300,
+    "reading_datetime": "2026-03-25T10:26:30.223Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 2300,
+    "reading_datetime": "2026-03-25T10:26:34.224Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 2301,
+    "reading_datetime": "2026-03-25T10:26:38.221Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 2301,
+    "reading_datetime": "2026-03-25T10:26:46.312Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1960,
+    "reading_datetime": "2026-03-25T10:26:54.271Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1960,
+    "reading_datetime": "2026-03-25T10:26:58.271Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1963,
+    "reading_datetime": "2026-03-25T10:27:02.279Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1963,
+    "reading_datetime": "2026-03-25T10:27:06.270Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1963,
+    "reading_datetime": "2026-03-25T10:27:10.270Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1963,
+    "reading_datetime": "2026-03-25T10:27:14.276Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1963,
+    "reading_datetime": "2026-03-25T10:27:18.324Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1963,
+    "reading_datetime": "2026-03-25T10:27:22.321Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1963,
+    "reading_datetime": "2026-03-25T10:27:26.321Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1959,
+    "reading_datetime": "2026-03-25T10:27:38.326Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1837,
+    "reading_datetime": "2026-03-25T10:27:46.378Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1836,
+    "reading_datetime": "2026-03-25T10:27:50.374Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1836,
+    "reading_datetime": "2026-03-25T10:27:54.584Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1836,
+    "reading_datetime": "2026-03-25T10:27:58.511Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1840,
+    "reading_datetime": "2026-03-25T10:28:18.526Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1839,
+    "reading_datetime": "2026-03-25T10:28:22.526Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1837,
+    "reading_datetime": "2026-03-25T10:28:26.527Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1837,
+    "reading_datetime": "2026-03-25T10:28:30.525Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1848,
+    "reading_datetime": "2026-03-25T10:28:34.527Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1847,
+    "reading_datetime": "2026-03-25T10:28:38.577Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1845,
+    "reading_datetime": "2026-03-25T10:28:42.586Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1,
+    "reading_datetime": "2026-03-25T10:41:18.331Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 2623,
+    "reading_datetime": "2026-03-25T10:41:30.331Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 2623,
+    "reading_datetime": "2026-03-25T10:41:34.385Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 2623,
+    "reading_datetime": "2026-03-25T10:41:38.378Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 2623,
+    "reading_datetime": "2026-03-25T10:41:46.381Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 2623,
+    "reading_datetime": "2026-03-25T10:41:50.384Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1862,
+    "reading_datetime": "2026-03-25T10:41:58.384Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1862,
+    "reading_datetime": "2026-03-25T10:42:02.428Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1862,
+    "reading_datetime": "2026-03-25T10:42:06.428Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1861,
+    "reading_datetime": "2026-03-25T10:42:14.436Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1814,
+    "reading_datetime": "2026-03-25T10:42:22.427Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1814,
+    "reading_datetime": "2026-03-25T10:42:26.478Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1814,
+    "reading_datetime": "2026-03-25T10:42:30.480Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1817,
+    "reading_datetime": "2026-03-25T10:42:38.477Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1822,
+    "reading_datetime": "2026-03-25T10:42:50.529Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1820,
+    "reading_datetime": "2026-03-25T10:42:54.527Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1822,
+    "reading_datetime": "2026-03-25T10:42:58.527Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1818,
+    "reading_datetime": "2026-03-25T10:43:06.531Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1809,
+    "reading_datetime": "2026-03-25T11:02:13.734Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  },
+  {
+    "terminal_code": "B832230603",
+    "weight_kg": 1818,
+    "reading_datetime": "2026-03-25T11:07:53.884Z",
+    "source_device": "DESKTOP-T1PEHIA"
+  }
+]
