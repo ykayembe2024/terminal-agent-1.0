@@ -79,11 +79,25 @@ module.exports = {
     parity: 'none'
   },
 
-  API: {
-    url: 'http://test-lisot.ktg.cd.glencore.net/api/scale/log',
-    heartbeatUrl: 'http://test-lisot.ktg.cd.glencore.net/api/scale/heartbeat',
-    token: 'a3f9b8c1d2e4f56789ab0cdef1234567890abcdef1234567890abcdef12345678'
-  },
+  API: (() => {
+    // Une seule base LISO pour heartbeat + poids (surchargeable via env).
+    // CORS local n'envoie rien au serveur : c'est bien ces URLs qui doivent pointer vers prod.
+    const apiBase = String(
+      process.env.API_BASE_URL
+      || process.env.SCALE_API_BASE
+      || 'http://liso.ktg.cd.glencore.net'
+    ).trim().replace(/\/+$/, '');
+
+    return {
+      url: String(process.env.API_URL || `${apiBase}/api/scale/log`).trim(),
+      heartbeatUrl: String(process.env.API_HEARTBEAT_URL || `${apiBase}/api/scale/heartbeat`).trim(),
+      token: String(
+        process.env.API_TOKEN
+        || process.env.SCALE_API_TOKEN
+        || 'a3f9b8c1d2e4f56789ab0cdef1234567890abcdef1234567890abcdef12345678'
+      ).trim()
+    };
+  })(),
 
   SYSTEM: {
     pollIntervalMs: 4000,

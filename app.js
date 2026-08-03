@@ -44,6 +44,8 @@ let isShuttingDown = false;
 async function startAgent() {
 
   logger.info('Démarrage du Balance Agent');
+  logger.info(`API log=${config.API.url}`);
+  logger.info(`API heartbeat=${config.API.heartbeatUrl}`);
 
   localServer = startServer();
 

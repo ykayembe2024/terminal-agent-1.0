@@ -57,38 +57,51 @@ function startServer() {
 
   /**
    * ============================================================
-   * CORS SIMPLE ET ROBUSTE
+   * CORS : localhost + *.ktg.cd.glencore.net (http/https)
    * ============================================================
    */
-  app.use((req, res, next) => {
-
-    const origin = req.headers.origin;
-
-    // Autoriser :
-    // - requêtes serveur (pas d'Origin)
-    // - ton domaine LISOT
-    // - localhost
-    if (
-      !origin ||
-      origin.includes("ktg.cd.glencore.net") ||
-      origin.includes("localhost") ||
-      origin.includes("127.0.0.1")
-    ) {
-
-      res.setHeader("Access-Control-Allow-Origin", origin || "*");
-      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-
-      if (req.method === "OPTIONS") {
-        return res.sendStatus(200);
-      }
-
-      return next();
+  function isAllowedOrigin(origin) {
+    if (!origin) {
+      return true;
     }
 
-    logger.warn(`CORS rejeté pour origine : ${origin}`);
-    return res.status(403).json({ error: "Origin not allowed" });
+    try {
+      const { protocol, hostname } = new URL(origin);
+      if (protocol !== 'http:' && protocol !== 'https:') {
+        return false;
+      }
 
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return true;
+      }
+
+      // Accepte ktg.cd.glencore.net et tous les sous-domaines
+      // (liso., test-lisot., test-liso., ...)
+      return hostname === 'ktg.cd.glencore.net'
+        || hostname.endsWith('.ktg.cd.glencore.net');
+    } catch {
+      return false;
+    }
+  }
+
+  app.use((req, res, next) => {
+    const origin = req.headers.origin;
+
+    if (!isAllowedOrigin(origin)) {
+      logger.warn(`CORS rejeté pour origine : ${origin}`);
+      return res.status(403).json({ error: "Origin not allowed" });
+    }
+
+    res.setHeader("Access-Control-Allow-Origin", origin || "*");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.setHeader("Vary", "Origin");
+
+    if (req.method === "OPTIONS") {
+      return res.sendStatus(200);
+    }
+
+    return next();
   });
 
   /**
