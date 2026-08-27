@@ -1,4 +1,5 @@
-﻿{
+{
   "main": "app.js",
-  "output": "/scripts/balance-agent.exe"
+  "output": "scripts/sea-prep.blob",
+  "disableExperimentalSEAWarning": true
 }

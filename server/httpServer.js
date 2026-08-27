@@ -7,14 +7,14 @@
  * Objectifs :
  *  - exposer le poids local de la balance
  *  - accessible uniquement sur localhost
- *  - authentification simple par token
- *  - CORS contrôlé pour l'application web
+ *  - CORS contrôlé pour l'application web (*.ktg.cd.glencore.net)
+ *  - pas de token local : le Bearer est uniquement pour LISO (sync/heartbeat)
  *
  * Auteur : Yves KAYEMBE
  * ==============================================================
  */
 
-const {createRequire} = require("module");
+const { createRequire } = require("module");
 const requireFile = createRequire(__filename);
 const express = require('express');
 const logger = requireFile('../core/logger');
@@ -57,7 +57,9 @@ function startServer() {
 
   /**
    * ============================================================
-   * CORS : localhost + *.ktg.cd.glencore.net (http/https)
+   * CORS : localhost + n'importe quel hôte *.ktg.cd.glencore.net
+   * (liso, toleka, test-liso, ...) — http et https.
+   * Aucun hostname métier n'est figé dans l'agent.
    * ============================================================
    */
   function isAllowedOrigin(origin) {
@@ -75,8 +77,6 @@ function startServer() {
         return true;
       }
 
-      // Accepte ktg.cd.glencore.net et tous les sous-domaines
-      // (liso., test-lisot., test-liso., ...)
       return hostname === 'ktg.cd.glencore.net'
         || hostname.endsWith('.ktg.cd.glencore.net');
     } catch {

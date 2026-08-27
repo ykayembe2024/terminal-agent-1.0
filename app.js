@@ -14,9 +14,8 @@ const requireFile = createRequire(__filename);
 // 2) Fichier .env présent dans le répertoire de travail (SERIAL_PATH=COM3)
 // 3) Valeur dans config.SERIAL.path
 try {
-  // require('dotenv') peut ne pas être installé dans tous les environnements
-  // ; si absent, on continue sans erreur.
-  const dotenv = require('dotenv');
+  // En SEA, require() ne voit que les modules built-in : dotenv passe par createRequire.
+  const dotenv = requireFile('dotenv');
   dotenv.config({ path: require('path').join(process.cwd(), '.env') });
 } catch (err) {
   // noop - dotenv absent

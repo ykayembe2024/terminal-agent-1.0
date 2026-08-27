@@ -1,5 +1,6 @@
 ; Balance Agent Inno Setup installer
-; Installe l’exécutable, configure SERIAL_PATH et propose l’installation en service via NSSM.
+; Compile depuis la racine du repo :
+;   "C:\Users\...\Inno Setup 6\ISCC.exe" "scripts\balance-agent-installer.iss"
 
 [Setup]
 AppName=Balance Agent
@@ -11,19 +12,36 @@ Compression=lzma
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
 PrivilegesRequired=admin
-OutputDir=C:\symfony\terminal-agent-1.0\dist
+OutputDir=..\dist
+WizardStyle=modern
+CloseApplications=force
+RestartApplications=no
+
+[Dirs]
+Name: "{app}\logs"
+Name: "{app}\storage"
 
 [Files]
-Source: "C:\symfony\terminal-agent-1.0\scripts\nssm.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\symfony\terminal-agent-1.0\scripts\balance-agent.exe"; DestDir: "{app}"; Flags: ignoreversion
-; Source: "C:\symfony\terminal-agent-1.0\scripts\nssm.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "nssm.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "balance-agent.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\config.js"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\package.json"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\core\*"; DestDir: "{app}\core"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\serial\*"; DestDir: "{app}\serial"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\server\*"; DestDir: "{app}\server"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\storage\*"; DestDir: "{app}\storage"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\node_modules\*"; DestDir: "{app}\node_modules"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{group}\Balance Agent"; Filename: "{app}\balance-agent.exe"
+Name: "{group}\Balance Agent"; Filename: "{app}\balance-agent.exe"; WorkingDir: "{app}"
 Name: "{group}\Uninstall Balance Agent"; Filename: "{uninstallexe}"
 
 [Run]
-Filename: "{app}\balance-agent.exe"; Description: "Lancer Balance Agent"; Flags: nowait postinstall skipifsilent
+Filename: "{sys}\sc.exe"; Parameters: "start BalanceAgent"; StatusMsg: "Démarrage du service BalanceAgent..."; Flags: runhidden waituntilterminated
+
+[UninstallRun]
+Filename: "{app}\nssm.exe"; Parameters: "stop BalanceAgent"; RunOnceId: "StopBalanceAgent"; Flags: runhidden waituntilterminated
+Filename: "{app}\nssm.exe"; Parameters: "remove BalanceAgent confirm"; RunOnceId: "RemoveBalanceAgent"; Flags: runhidden waituntilterminated
 
 [Code]
 var
@@ -54,49 +72,87 @@ begin
   );
 
   SerialPage.Add('Port série :', False);
+  SerialPage.Values[0] := ExpandConstant('{param:SerialPort|COM3}');
+end;
+
+function GetSerialPort(): string;
+var
+  PortVal: string;
+begin
+  PortVal := Trim(SerialPage.Values[0]);
+  if PortVal = '' then
+    PortVal := ExpandConstant('{param:SerialPort|COM3}');
+  if PortVal = '' then
+    PortVal := 'COM3';
+  Result := PortVal;
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 var
   PortVal: string;
-  InstallSvc: Integer;
+  InstallSvc: Boolean;
   ResultCode: Integer;
   NSSMPath: string;
   ExePath: string;
+  AppDir: string;
 begin
   if CurStep = ssInstall then
   begin
-    ExePath := ExpandConstant('{app}\balance-agent.exe');
-
-    { --- Récupération du port série --- }
-    PortVal := Trim(SerialPage.Values[0]);
-
-    if PortVal <> '' then
+    AppDir := ExpandConstant('{app}');
+    NSSMPath := AppDir + '\nssm.exe';
+    if FileExists(NSSMPath) then
     begin
-      RegWriteStringValue(
-        HKLM,
-        'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
-        'SERIAL_PATH',
-        PortVal
-      );
-      BroadcastEnvironmentChange();
+      Exec(NSSMPath, 'stop BalanceAgent', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+      Sleep(1500);
     end;
+    Exec(ExpandConstant('{sys}\sc.exe'), 'stop BalanceAgent', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+    Sleep(1000);
+  end;
 
-    { --- Installation en service via NSSM --- }
-    InstallSvc := MsgBox(
-      'Voulez-vous installer Balance Agent comme service Windows (NSSM requis) ?',
-      mbConfirmation, MB_YESNO
+  if CurStep = ssPostInstall then
+  begin
+    AppDir := ExpandConstant('{app}');
+    ExePath := AppDir + '\balance-agent.exe';
+    NSSMPath := AppDir + '\nssm.exe';
+    PortVal := GetSerialPort();
+
+    RegWriteStringValue(
+      HKLM,
+      'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
+      'SERIAL_PATH',
+      PortVal
     );
+    BroadcastEnvironmentChange();
 
-    if InstallSvc = IDYES then
+    { En silent : toujours installer le service. En UI : demander. }
+    if WizardSilent then
+      InstallSvc := True
+    else
+      InstallSvc := MsgBox(
+        'Voulez-vous installer Balance Agent comme service Windows ?',
+        mbConfirmation, MB_YESNO
+      ) = IDYES;
+
+    if InstallSvc then
     begin
-      NSSMPath := ExpandConstant('{app}\nssm.exe');
-
-      if FileExists(NSSMPath) then
+      if not FileExists(NSSMPath) then
       begin
+        if not WizardSilent then
+          MsgBox('nssm.exe est introuvable dans le dossier d''installation.', mbError, MB_OK);
+      end
+      else if not FileExists(ExePath) then
+      begin
+        if not WizardSilent then
+          MsgBox('balance-agent.exe est introuvable dans le dossier d''installation.', mbError, MB_OK);
+      end
+      else
+      begin
+        Exec(NSSMPath, 'stop BalanceAgent', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+        Exec(NSSMPath, 'remove BalanceAgent confirm', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+
         Exec(
           NSSMPath,
-          'install "BalanceAgent" "' + ExePath + '"',
+          'install BalanceAgent "' + ExePath + '"',
           '',
           SW_HIDE,
           ewWaitUntilTerminated,
@@ -104,17 +160,24 @@ begin
         );
 
         if ResultCode <> 0 then
-          MsgBox('Échec de l’installation du service via NSSM (code: ' + IntToStr(ResultCode) + ')', mbError, MB_OK)
+        begin
+          if not WizardSilent then
+            MsgBox('Échec de l''installation du service NSSM (code: ' + IntToStr(ResultCode) + ')', mbError, MB_OK);
+        end
         else
-          MsgBox('Service Windows "BalanceAgent" installé avec succès.', mbInformation, MB_OK);
-      end
-      else
-      begin
-        MsgBox(
-          'nssm.exe est introuvable dans le dossier d''installation.'#13#10 +
-          'Copiez nssm.exe dans {app} si vous souhaitez installer le service.',
-          mbInformation, MB_OK
-        );
+        begin
+          Exec(NSSMPath, 'set BalanceAgent AppDirectory "' + AppDir + '"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+          Exec(NSSMPath, 'set BalanceAgent AppEnvironmentExtra SERIAL_PATH=' + PortVal, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+          Exec(NSSMPath, 'set BalanceAgent Start SERVICE_AUTO_START', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+          Exec(NSSMPath, 'set BalanceAgent AppStdout "' + AppDir + '\logs\service-stdout.log"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+          Exec(NSSMPath, 'set BalanceAgent AppStderr "' + AppDir + '\logs\service-stderr.log"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+          Exec(NSSMPath, 'set BalanceAgent AppRotateFiles 1', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+          Exec(NSSMPath, 'set BalanceAgent AppExit Default Restart', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+          Exec(NSSMPath, 'set BalanceAgent AppRestartDelay 5000', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+          Exec(NSSMPath, 'start BalanceAgent', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+          if ResultCode <> 0 then
+            Exec(ExpandConstant('{sys}\sc.exe'), 'start BalanceAgent', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+        end;
       end;
     end;
   end;
